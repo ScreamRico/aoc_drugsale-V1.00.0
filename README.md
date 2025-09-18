@@ -12,7 +12,6 @@
 - Localised prompts via ox_lib, with English shipped and simple hooks for more languages.
 
 ## Requirements
-- FiveM server on the *cerulean* runtime (`fxmanifest` target)
 - [`qb-core`](https://github.com/qbcore-framework/qb-core)
 - [`ox_lib` >= v2.44.5](https://overextended.dev/)
 - [`ox_inventory`](https://github.com/overextended/ox_inventory)
@@ -33,10 +32,10 @@
 The bundled JSON placeholders ship empty; they populate automatically the first time the resource runs.
 
 ## Commands & UI
-- `/selldrugs` – start or cancel a selling session (8 minutes by default).
-- `/rep` – view your stored reputation, tier perks, and next threshold.
-- `/drugdash` – open the live dashboard showing streak, sales, totals, and hot product tips.
-- `/drugsim` – admin-only simulator for payout averages and final risk odds.
+- `/selldrugs` ï¿½ start or cancel a selling session (8 minutes by default).
+- `/rep` ï¿½ view your stored reputation, tier perks, and next threshold.
+- `/drugdash` ï¿½ open the live dashboard showing streak, sales, totals, and hot product tips.
+- `/drugsim` ï¿½ admin-only simulator for payout averages and final risk odds.
 
 ## Configuration Highlights
 | Key | Description | Default |
@@ -57,7 +56,7 @@ Each entry in `Config.DrugData` defines item metadata, payout ranges, risk odds,
 - Both files start as empty JSON objects in this release package and are filled during live gameplay.
 
 ## Troubleshooting
-- **Buyers ignore you:** confirm the models in `Config.CustomPeds` exist and you’re not inside an interior/vehicle.
+- **Buyers ignore you:** confirm the models in `Config.CustomPeds` exist and youï¿½re not inside an interior/vehicle.
 - **No payout:** check that the player holds one of the configured drugs and that `black_money` is registered.
 - **Frequent busts:** tweak tier modifiers or enable `Config.Debug` to see roll breakdowns in-game.
 - **Webhooks silent:** set `Config.Webhook.enabled = true` and provide a valid Discord URL.
@@ -70,4 +69,4 @@ Questions or feedback? Join [AOC Development Support](https://discord.gg/eMdD6Sy
 - Systems & documentation by the Rico community contributors
 
 ## License
-MIT License – see `LICENSE` for details.
+MIT License ï¿½ see `LICENSE` for details.
