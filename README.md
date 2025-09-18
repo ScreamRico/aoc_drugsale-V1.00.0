@@ -14,7 +14,7 @@
 ## Requirements
 - FiveM server on the *cerulean* runtime (`fxmanifest` target)
 - [`qb-core`](https://github.com/qbcore-framework/qb-core)
-- [`ox_lib` = v2.44.5](https://overextended.dev/)
+- [`ox_lib` >= v2.44.5](https://overextended.dev/)
 - [`ox_inventory`](https://github.com/overextended/ox_inventory)
 - Items referenced in `Config.DrugData` (e.g. `coke_pure`, `meth_bag`, `black_money`) registered in your shared item table
 
@@ -63,7 +63,7 @@ Each entry in `Config.DrugData` defines item metadata, payout ranges, risk odds,
 - **Webhooks silent:** set `Config.Webhook.enabled = true` and provide a valid Discord URL.
 
 ## Support
-Questions or feedback? DM **scream_rico** on Discord.
+Questions or feedback? Join [AOC Development Support](https://discord.gg/eMdD6SytX7) or DM **scream_rico** on Discord.
 
 ## Credits
 - Script authored by **AOCDEV**
