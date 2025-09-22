@@ -446,17 +446,19 @@ function handleSale(ped)
     end
 
     if result.status == 'alert' then
-        exports.ox_lib:notify({ description = _L('sale_alert_notify'), type = 'error' })
-        TaskStartScenarioInPlace(ped, 'WORLD_HUMAN_STAND_MOBILE', 0, false)
-        SetTimeout(4000, function()
-            if DoesEntityExist(ped) then
-                ClearPedTasks(ped)
-                TaskSmartFleePed(ped, playerPed, 80.0, -1)
-            end
-        end)
-        soldTo[ped] = true
-        return false
-    end
+    exports['ps-dispatch']:DrugSale()  -- ðŸš” send dispatch alert (ps-dispatch)
+    exports.ox_lib:notify({ description = _L('sale_alert_notify'), type = 'error' })
+    TaskStartScenarioInPlace(ped, 'WORLD_HUMAN_STAND_MOBILE', 0, false)
+    SetTimeout(4000, function()
+        if DoesEntityExist(ped) then
+            ClearPedTasks(ped)
+            TaskSmartFleePed(ped, playerPed, 80.0, -1)
+        end
+    end)
+    soldTo[ped] = true
+    return false
+end
+
 
     if result.status == 'aggression' then
         exports.ox_lib:notify({ description = _L('sale_aggression_notify'), type = 'error' })
@@ -581,7 +583,7 @@ RegisterNetEvent('aocdev:sendRep', function(data)
 
     local options = {
         { title = _L('rep_menu_value'), description = formatRep(data.value or 0) },
-        { title = _L('rep_tier_label'), description = tier.name or '—' }
+        { title = _L('rep_tier_label'), description = tier.name or 'ï¿½' }
     }
 
     if tier.payoutBonus then
@@ -599,7 +601,7 @@ RegisterNetEvent('aocdev:sendRep', function(data)
     if tier.next then
         options[#options + 1] = {
             title = _L('rep_next_tier'),
-            description = string.format("%s @ %s", tier.next.name or '—', formatRep(tier.next.min or 0))
+            description = string.format("%s @ %s", tier.next.name or 'ï¿½', formatRep(tier.next.min or 0))
         }
     end
 
@@ -649,7 +651,7 @@ RegisterCommand('drugdash', function()
         { title = _L('dashboard_total_cash'), description = ('$%s'):format(formatCurrency(session.totalPayout or 0)) },
         { title = _L('dashboard_best_sale'), description = ('$%s'):format(formatCurrency(session.bestSale or 0)) },
         { title = _L('dashboard_sales'), description = tostring(session.saleCount or 0) },
-        { title = _L('dashboard_current_tier'), description = session.tier and session.tier.name or '—' }
+        { title = _L('dashboard_current_tier'), description = session.tier and session.tier.name or 'ï¿½' }
     }
 
     exports.ox_lib:registerContext({
