@@ -4,20 +4,22 @@ Config.Locale = 'en'
 Config.LocaleFallback = 'en'
 
 Config.Debug = false
+Config.Storage = 'sql'  -- change to 'sql' to use database
 
 Config.SessionDuration = 480
 Config.SellCooldown = 6
-
+-- Show the big ASCII emblem in server console (checker still runs either way)
+Config.ShowEmblem = true
 Config.SessionMoveRadius = 35.0
 
 Config.SessionPersistence = {
     enabled = true,
-    saveInterval = 30 -- seconds between automatic session state saves
+    saveInterval = 5 -- seconds between automatic session state saves
 }
 
-Config.BuyerSpawnInterval = { min = 8, max = 14 }
+Config.BuyerSpawnInterval = { min = 1, max = 2 }
 Config.BuyerSpawnDistance = { min = 35, max = 55 }
-Config.BuyerSpawnAttempts = 8
+Config.BuyerSpawnAttempts = 12
 Config.MaxConcurrentBuyers = 3
 
 Config.Webhook = {
@@ -68,9 +70,9 @@ Config.DrugData = {
         label = "Pure Coke",
         price = { min = 275, max = 425 },
         quantity = { min = 1, max = 2 },
-        alertChance = 12,
-        rejectChance = 10,
-        aggressionChance = 6,
+        alertChance = 23,
+        rejectChance = 4,
+        aggressionChance = 2,
         repGain = 0.35
     },
     coke_figure = {
@@ -78,9 +80,9 @@ Config.DrugData = {
         label = "Action Figure Coke",
         price = { min = 210, max = 330 },
         quantity = { min = 1, max = 2 },
-        alertChance = 8,
-        rejectChance = 14,
-        aggressionChance = 4,
+        alertChance = 23,
+        rejectChance = 4,
+        aggressionChance = 2,
         repGain = 0.25
     },
     meth_bag = {
@@ -88,9 +90,9 @@ Config.DrugData = {
         label = "Meth Bag",
         price = { min = 240, max = 360 },
         quantity = { min = 1, max = 2 },
-        alertChance = 11,
-        rejectChance = 12,
-        aggressionChance = 7,
+        alertChance = 23,
+        rejectChance = 4,
+        aggressionChance = 2,
         repGain = 0.3
     },
     weed = {
@@ -98,8 +100,8 @@ Config.DrugData = {
         label = "Weed",
         price = { min = 75, max = 150 },
         quantity = { min = 1, max = 4 },
-        alertChance = 6,
-        rejectChance = 18,
+        alertChance = 23,
+        rejectChance = 4,
         aggressionChance = 2,
         repGain = 0.1
     },

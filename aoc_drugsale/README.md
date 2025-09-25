@@ -1,12 +1,12 @@
 # Rico's Drug Sale
-Hello Everyone, This update i decided to updated the previous data logging too a more obtain and effecient version 
-i integreted sql data storage there for everything will now be stored via your cloud storage
 
+Hello Everyone,  
+Today’s update includes major improvements and polish:
 
-if you do not enjoy this you can also stay using the curent version because you can just decide on what type of logging you would like to do sql/json 
-
-
-> Street-level hustling with streak UI, smarter NPC buyers, tier-based payouts, and persistence for QB-Core servers.
+- **Configurable Storage:** You can now choose between JSON file logging or SQL database storage (`aoc_drugselling`).  
+- **Version Checker with Emblem:** A professional console emblem banner and automatic GitHub release version checker are built-in.  
+- **License Update:** Switched to Apache 2.0 with Commons Clause to ensure open-source collaboration while preventing reselling.  
+- **Banner & Branding:** Added a styled ASCII banner for **AOCdev** with a Discord invite for support.  
 
 ## Features
 - Kick off `/selldrugs` runs with an ox_lib session card, phone-call intro, and graceful cleanup when the clock expires.
@@ -75,4 +75,4 @@ Questions or feedback? Join [AOC Development Support](https://discord.gg/eMdD6Sy
 - Systems & documentation by the Rico community contributors
 
 ## License
-MIT License � see `LICENSE` for details.
+Apache License 2.0 with Commons Clause � see `LICENSE` for details.
