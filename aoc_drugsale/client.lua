@@ -22,6 +22,36 @@ local phoneScenarioActive = false
 local callInProgress = false
 local pendingMoveCancel = false
 
+local function isPedAlive(ped)
+    if not ped or ped == 0 then return false end
+    if not DoesEntityExist(ped) then return false end
+    if IsEntityDead(ped) or IsPedFatallyInjured(ped) or IsPedDeadOrDying(ped, true) then
+        return false
+    end
+    return true
+end
+
+local function isPlayerIncapacitated(ped)
+    ped = ped or PlayerPedId()
+    if not isPedAlive(ped) then return true end
+
+    local state = LocalPlayer and LocalPlayer.state
+    if state then
+        if state.isDead or state.dead or state.isIncapacitated or state.incapacitated
+            or state.isDown or state.isDowned or state.downed
+            or state.isLastStand or state.laststand or state.lastStand
+            or state.isUnconscious or state.unconscious or state.bleedingOut or state.bleedingout then
+            return true
+        end
+    end
+
+    if IsPedInWrithe(ped) then
+        return true
+    end
+
+    return false
+end
+
 local function formatSessionTime(seconds)
     local minutes = math.floor(seconds / 60)
     local secs = seconds % 60
@@ -158,8 +188,14 @@ end
 local function getActiveBuyerCount()
     local count = 0
     for ped in pairs(peds) do
-        if DoesEntityExist(ped) then
+        if isPedAlive(ped) then
             count = count + 1
+        else
+            if DoesEntityExist(ped) then
+                DeleteEntity(ped)
+            end
+            peds[ped] = nil
+            soldTo[ped] = nil
         end
     end
     return count
@@ -324,25 +360,40 @@ function spawnBuyer()
     peds[ped] = true
 
     CreateThread(function()
-        while session.active and DoesEntityExist(ped) do
-            local dist = #(GetEntityCoords(PlayerPedId()) - GetEntityCoords(ped))
-            if dist < 2.5 and not soldTo[ped] then
-                DrawText3D(GetEntityCoords(ped), _L('sale_prompt'))
-                if IsControlJustReleased(0, 38) then
-                    if handleSale(ped) then
-                        soldTo[ped] = true
-                        break
+        while session.active do
+            if not DoesEntityExist(ped) then break end
+            if not isPedAlive(ped) then break end
+
+            local playerPed = PlayerPedId()
+            if isPlayerIncapacitated(playerPed) then
+                Wait(250)
+            else
+                local dist = #(GetEntityCoords(playerPed) - GetEntityCoords(ped))
+                if dist < 2.5 and not soldTo[ped] then
+                    DrawText3D(GetEntityCoords(ped), _L('sale_prompt'))
+                    if IsControlJustReleased(0, 38) then
+                        if handleSale(ped) then
+                            soldTo[ped] = true
+                            break
+                        end
                     end
                 end
+                Wait(0)
             end
-            Wait(0)
         end
 
         local pedExists = DoesEntityExist(ped)
+        local pedAlive = isPedAlive(ped)
         local wasSold = soldTo[ped]
 
-        if pedExists and not wasSold then
+        if pedExists and pedAlive and not wasSold then
             TaskWanderStandard(ped, 10.0, 10)
+            SetTimeout(5000, function()
+                if DoesEntityExist(ped) then
+                    DeleteEntity(ped)
+                end
+            end)
+        elseif pedExists and not pedAlive then
             SetTimeout(5000, function()
                 if DoesEntityExist(ped) then
                     DeleteEntity(ped)
@@ -361,6 +412,17 @@ function handleSale(ped)
     if not session.active or not DoesEntityExist(ped) then return false end
 
     local playerPed = PlayerPedId()
+
+    if isPlayerIncapacitated(playerPed) then
+        exports.ox_lib:notify({ description = _L('sale_player_incapacitated'), type = 'error' })
+        return false
+    end
+
+    if not isPedAlive(ped) then
+        exports.ox_lib:notify({ description = _L('sale_buyer_unavailable'), type = 'error' })
+        return false
+    end
+
     local playerCoords = GetEntityCoords(playerPed)
     local pedCoords = GetEntityCoords(ped)
     if #(playerCoords - pedCoords) > 3.0 then
@@ -376,7 +438,15 @@ function handleSale(ped)
         disable = { move = true, car = true, combat = true }
     })
 
-    if not session.active or not DoesEntityExist(ped) then return false end
+    if not session.active then return false end
+    if not isPedAlive(ped) then
+        exports.ox_lib:notify({ description = _L('sale_buyer_unavailable'), type = 'error' })
+        return false
+    end
+    if isPlayerIncapacitated(playerPed) then
+        exports.ox_lib:notify({ description = _L('sale_player_incapacitated'), type = 'error' })
+        return false
+    end
 
     ClearPedTasks(ped)
     TaskStandStill(ped, 4000)
@@ -384,10 +454,20 @@ function handleSale(ped)
     TaskTurnPedToFaceEntity(playerPed, ped, 1000)
     Wait(600)
 
+    if not isPedAlive(ped) then
+        exports.ox_lib:notify({ description = _L('sale_buyer_unavailable'), type = 'error' })
+        return false
+    end
+
     loadAnimDict('mp_common')
     TaskPlayAnim(playerPed, 'mp_common', 'givetake1_a', 8.0, -8.0, 1500, 0, 0, false, false, false)
     TaskPlayAnim(ped, 'mp_common', 'givetake1_b', 8.0, -8.0, 1500, 0, 0, false, false, false)
     Wait(1500)
+
+    if not isPedAlive(ped) then
+        exports.ox_lib:notify({ description = _L('sale_buyer_unavailable'), type = 'error' })
+        return false
+    end
 
     if #(GetEntityCoords(playerPed) - GetEntityCoords(ped)) > 3.0 then
         exports.ox_lib:notify({ description = _L('sale_buyer_moved'), type = 'error' })

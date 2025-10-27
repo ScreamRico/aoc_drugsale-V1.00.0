@@ -597,6 +597,30 @@ end
 -- #########################
 
 local function processSale(src)
+    local ped = GetPlayerPed(src)
+    if not ped or ped == 0 or not DoesEntityExist(ped) then
+        return { status = 'error', code = 'player_invalid', message = _L('sale_player_incapacitated') }
+    end
+
+    if IsEntityDead(ped) or IsPedFatallyInjured(ped) or IsPedDeadOrDying(ped, true) then
+        return { status = 'error', code = 'player_dead', message = _L('sale_player_incapacitated') }
+    end
+
+    local player = Player(src)
+    if player and player.state then
+        local state = player.state
+        if state.isDead or state.dead or state.isIncapacitated or state.incapacitated
+            or state.isDown or state.isDowned or state.downed
+            or state.isLastStand or state.laststand or state.lastStand
+            or state.isUnconscious or state.unconscious or state.bleedingOut or state.bleedingout then
+            return { status = 'error', code = 'player_dead', message = _L('sale_player_incapacitated') }
+        end
+    end
+
+    if IsPedInWrithe(ped) then
+        return { status = 'error', code = 'player_dead', message = _L('sale_player_incapacitated') }
+    end
+
     local rep, identifier = getPlayerRep(src)
     if not identifier then
         return { status = 'error', code = 'identifier_missing', message = _L('error_identifier') }
