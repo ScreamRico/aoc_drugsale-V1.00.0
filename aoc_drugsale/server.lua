@@ -592,6 +592,32 @@ local function dispatchAlert(src, drugKey)
     TriggerEvent('aocdev:drugsale:alert', src, coords, { drug = drugKey })
 end
 
+local function isPedDownOrDead(ped)
+    if not ped or ped == 0 or not DoesEntityExist(ped) then
+        return true
+    end
+
+    local getHealth = GetEntityHealth
+    local health = type(getHealth) == 'function' and getHealth(ped) or 200
+    if health <= 0 then
+        return true
+    end
+
+    if type(IsPedFatallyInjured) == 'function' and IsPedFatallyInjured(ped) then
+        return true
+    end
+
+    if type(IsPedDeadOrDying) == 'function' and IsPedDeadOrDying(ped, true) then
+        return true
+    end
+
+    if type(IsPedInWrithe) == 'function' and IsPedInWrithe(ped) then
+        return true
+    end
+
+    return false
+end
+
 -- #########################
 -- ### SALE PIPELINE
 -- #########################
@@ -602,7 +628,7 @@ local function processSale(src)
         return { status = 'error', code = 'player_invalid', message = _L('sale_player_incapacitated') }
     end
 
-    if IsEntityDead(ped) or IsPedFatallyInjured(ped) or IsPedDeadOrDying(ped, true) then
+    if isPedDownOrDead(ped) then
         return { status = 'error', code = 'player_dead', message = _L('sale_player_incapacitated') }
     end
 
@@ -615,10 +641,6 @@ local function processSale(src)
             or state.isUnconscious or state.unconscious or state.bleedingOut or state.bleedingout then
             return { status = 'error', code = 'player_dead', message = _L('sale_player_incapacitated') }
         end
-    end
-
-    if IsPedInWrithe(ped) then
-        return { status = 'error', code = 'player_dead', message = _L('sale_player_incapacitated') }
     end
 
     local rep, identifier = getPlayerRep(src)

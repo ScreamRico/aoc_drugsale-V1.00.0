@@ -21,13 +21,20 @@ local pendingSales = {}
 local phoneScenarioActive = false
 local callInProgress = false
 local pendingMoveCancel = false
+local saleInProgress = false
 
 local function isPedAlive(ped)
-    if not ped or ped == 0 then return false end
-    if not DoesEntityExist(ped) then return false end
-    if IsEntityDead(ped) or IsPedFatallyInjured(ped) or IsPedDeadOrDying(ped, true) then
+    if not ped or ped == 0 or not DoesEntityExist(ped) then return false end
+
+    local getHealth = GetEntityHealth
+    if type(getHealth) == 'function' and getHealth(ped) <= 0 then
         return false
     end
+
+    if type(IsEntityDead) == 'function' and IsEntityDead(ped) then return false end
+    if type(IsPedFatallyInjured) == 'function' and IsPedFatallyInjured(ped) then return false end
+    if type(IsPedDeadOrDying) == 'function' and IsPedDeadOrDying(ped, true) then return false end
+
     return true
 end
 
@@ -45,7 +52,7 @@ local function isPlayerIncapacitated(ped)
         end
     end
 
-    if IsPedInWrithe(ped) then
+    if type(IsPedInWrithe) == 'function' and IsPedInWrithe(ped) then
         return true
     end
 
@@ -360,26 +367,45 @@ function spawnBuyer()
     peds[ped] = true
 
     CreateThread(function()
+        local repathAt = 0
+
         while session.active do
             if not DoesEntityExist(ped) then break end
             if not isPedAlive(ped) then break end
 
             local playerPed = PlayerPedId()
             if isPlayerIncapacitated(playerPed) then
-                Wait(250)
-            else
-                local dist = #(GetEntityCoords(playerPed) - GetEntityCoords(ped))
-                if dist < 2.5 and not soldTo[ped] then
-                    DrawText3D(GetEntityCoords(ped), _L('sale_prompt'))
-                    if IsControlJustReleased(0, 38) then
-                        if handleSale(ped) then
-                            soldTo[ped] = true
-                            break
-                        end
+                break
+            end
+
+            local pedCoords = GetEntityCoords(ped)
+            local playerCoords = GetEntityCoords(playerPed)
+            local dist = #(playerCoords - pedCoords)
+
+            if dist < 2.5 and not soldTo[ped] then
+                DrawText3D(pedCoords, _L('sale_prompt'))
+
+                if not saleInProgress and IsControlJustReleased(0, 38) then
+                    saleInProgress = true
+                    local ok, result = pcall(handleSale, ped)
+                    saleInProgress = false
+
+                    if not ok then
+                        print(('[DrugSale] handleSale error: %s'):format(result))
+                    elseif result then
+                        soldTo[ped] = true
+                        break
                     end
                 end
-                Wait(0)
+            elseif dist > 3.5 then
+                local now = GetGameTimer()
+                if now >= repathAt then
+                    TaskGoToEntity(ped, playerPed, -1, 2.0, 1.2, 1073741824, 0)
+                    repathAt = now + 1500
+                end
             end
+
+            Wait(0)
         end
 
         local pedExists = DoesEntityExist(ped)
